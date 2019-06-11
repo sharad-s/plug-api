@@ -24,6 +24,10 @@ const Plug = mongoose.model(
     snippets: {
       type: [Schema.Types.ObjectId],
       ref: "Snippet"
+    },
+    playCount: {
+      type: Number,
+      default: 0
     }
   })
 );
@@ -34,17 +38,15 @@ function validatePlug(plug) {
       .min(5)
       .max(50)
       .required(),
-    genreId: Joi.objectId().required(),
-    numberInStock: Joi.number()
-      .min(0)
+    soundcloudURL: Joi.string()
+      .min(5)
+      .max(50)
       .required(),
-    dailyRentalRate: Joi.number()
-      .min(0)
-      .required()
+    createdBy: Joi.objectId().required(),
   };
 
-  return Joi.validate(movie, schema);
+  return Joi.validate(plug, schema);
 }
 
-exports.Movie = Movie;
-exports.validate = validateMovie;
+exports.Plug = Plug;
+exports.validate = validatePlug;
