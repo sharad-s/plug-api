@@ -2,6 +2,7 @@ const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const bcrypt = require('bcrypt');
+const Joi = require('joi');
 const _ = require('lodash');
 const {User, validate} = require('../models/user');
 const mongoose = require('mongoose');
@@ -26,7 +27,39 @@ router.post('/', async (req, res) => {
   await user.save();
 
   const token = user.generateAuthToken();
-  res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email', 'soundcloudURL']));
+  res.header('x-auth-token', token).send(token);
+  // Revert to this
+  // res.send('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email', 'soundcloudURL']));
+
 }); 
+
+router.post('/prevalidate', async (req, res) => {
+   // Validate Registration input. If errors return 400
+  const { error } = preValidateRegisterInput(req.body); 
+  if (error) return res.status(400).send(error.details[0].message);
+
+  // Validate User's email doesn't already exist. Return 400 if exists
+  let user = await User.findOne({ email: req.body.email });
+  if (user) return res.status(400).send('User already registered.');
+
+  res.send(req.body)
+}); 
+
+
+function preValidateRegisterInput(registerData) {
+  let errors = {};
+  const schema = {
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .email()
+      .required(),
+    password: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+  };
+  return Joi.validate(registerData, schema, { abortEarly: false });
+}
 
 module.exports = router; 

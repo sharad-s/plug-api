@@ -56,7 +56,8 @@ function validatePlug(plug) {
       .min(5)
       .max(50)
       .required(),
-    imageURL: Joi.string().required()
+    imageURL: Joi.string().required(),
+    snippets: Joi.array().required()
     // creator: Joi.objectId().required(),
   };
 
