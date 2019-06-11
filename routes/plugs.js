@@ -9,35 +9,34 @@ const router = express.Router();
 
 // middleware
 const optionalAuth = require("../middleware/optionalAuth");
+const validateSoundcloudURL = require("../middleware/validateSoundcloudURL");
+
+
+// Soundcloud Utils
+const { resolveURL } = require("../utils/soundcloud");
 
 router.get("/", async (req, res) => {
   const plugs = await Plug.find().sort("dateCreated");
   res.send(plugs);
 });
 
-router.post("/", optionalAuth, async (req, res) => {
+router.post("/", optionalAuth,  async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  console.log("REQ.USER", req.user._id, req.user.id);
+  // Should create snippets array
+  const snippets = [mongoose.Types.ObjectId(),mongoose.Types.ObjectId(),mongoose.Types.ObjectId()];
 
-  // const genre = await Genre.findById(req.body.genreId);
-  // if (!genre) return res.status(400).send('Invalid genre.');
+  // should update dateCreated
+  const dateCreated = Date.now();
 
-  
-  
-  
-  
-  
-  
   const plug = new Plug({
     title: req.body.title,
     soundcloudURL: req.body.soundcloudURL,
-    creator: req.user._id
+    creator: req.user._id,
+    dateCreated,
+    snippets
   });
-
-
-
 
   await plug.save();
 

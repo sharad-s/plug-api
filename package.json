@@ -23,6 +23,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.20.1",
     "mongoose": "^5.0.2",
+    "soundcloud-api-client": "^0.0.9",
     "winston": "^2.4.0",
     "winston-mongodb": "^3.0.0"
   },
