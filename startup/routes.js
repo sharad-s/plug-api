@@ -8,6 +8,9 @@ const auth = require('../routes/auth');
 const returns = require('../routes/returns');
 const error = require('../middleware/error');
 
+const plugs = require('../routes/plugs');
+
+
 module.exports = function(app) {
   app.use(express.json());
   app.use('/api/genres', genres);
@@ -17,5 +20,9 @@ module.exports = function(app) {
   app.use('/api/users', users);
   app.use('/api/auth', auth);
   app.use('/api/returns', returns);
+
+  // Plug
+  app.use('/api/plugs', plugs);
+
   app.use(error);
 }

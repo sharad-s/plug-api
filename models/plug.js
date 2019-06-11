@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const { genreSchema } = require("./genre");
+// const { genreSchema } = require("./genre");
 
 const Plug = mongoose.model(
   "Plugs",
@@ -17,17 +17,27 @@ const Plug = mongoose.model(
       required: true,
       trim: true
     },
-    createdBy: {
-      type: Schema.Types.ObjectId,
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     },
     snippets: {
-      type: [Schema.Types.ObjectId],
+      type: [mongoose.Schema.Types.ObjectId],
       ref: "Snippet"
     },
     playCount: {
       type: Number,
       default: 0
+    },
+    shortID: {
+      type: String,
+      default: ""
+    },
+    dateCreated: {
+      type: Date,
+    },
+    dateUpdated: {
+      type: Date
     }
   })
 );
@@ -42,7 +52,7 @@ function validatePlug(plug) {
       .min(5)
       .max(50)
       .required(),
-    createdBy: Joi.objectId().required(),
+    // creator: Joi.objectId().required(),
   };
 
   return Joi.validate(plug, schema);
