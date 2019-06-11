@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 1024
   },
+  soundcloudURL: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 255,
+  },
   imageURL: {
     type: String,
     minlength: 5,
@@ -42,6 +48,7 @@ function validateUser(user) {
     name: Joi.string().min(5).max(50).required(),
     email: Joi.string().min(5).max(255).required().email(),
     password: Joi.string().min(5).max(255).required(),
+    soundcloudURL: Joi.string().min(5).max(255).required(),
     imageURL: Joi.string().min(5).max(255)
   };
 
