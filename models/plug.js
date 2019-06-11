@@ -17,6 +17,10 @@ const Plug = mongoose.model(
       required: true,
       trim: true
     },
+    imageURL: {
+      type: String,
+      required: true
+    },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
@@ -34,7 +38,7 @@ const Plug = mongoose.model(
       default: ""
     },
     dateCreated: {
-      type: Date,
+      type: Date
     },
     dateUpdated: {
       type: Date
@@ -52,6 +56,7 @@ function validatePlug(plug) {
       .min(5)
       .max(50)
       .required(),
+    imageURL: Joi.string().required()
     // creator: Joi.objectId().required(),
   };
 

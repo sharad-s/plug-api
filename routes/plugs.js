@@ -33,6 +33,7 @@ router.post("/", optionalAuth,  async (req, res) => {
   const plug = new Plug({
     title: req.body.title,
     soundcloudURL: req.body.soundcloudURL,
+    imageURL: req.body.imageURL,
     creator: req.user._id,
     dateCreated,
     snippets
