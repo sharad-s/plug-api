@@ -1,7 +1,7 @@
-const config = require('config');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
-const mongoose = require('mongoose');
+const config = require("config");
+const jwt = require("jsonwebtoken");
+const Joi = require("joi");
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,33 +27,56 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 5,
-    maxlength: 255,
+    maxlength: 255
   },
   imageURL: {
     type: String,
     minlength: 5,
-    maxlength: 255,
+    maxlength: 255
   }
 });
 
-userSchema.methods.generateAuthToken = function() { 
-  const token = jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'));
+userSchema.methods.generateAuthToken = function() {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+      name: this.name,
+      soundcloudURL: this.soundcloudURL,
+      imageURL: this.imageURL
+    },
+    config.get("jwtPrivateKey")
+  );
   return token;
-}
+};
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 function validateUser(user) {
   const schema = {
-    name: Joi.string().min(1).max(50).required(),
-    email: Joi.string().min(5).max(255).required().email(),
-    password: Joi.string().min(5).max(255).required(),
-    soundcloudURL: Joi.string().min(5).max(255).required(),
-    imageURL: Joi.string().min(5).max(255)
+    name: Joi.string()
+      .min(1)
+      .max(50)
+      .required(),
+    email: Joi.string()
+      .min(5)
+      .max(255)
+      .required()
+      .email(),
+    password: Joi.string()
+      .min(5)
+      .max(255)
+      .required(),
+    soundcloudURL: Joi.string()
+      .min(5)
+      .max(255)
+      .required(),
+    imageURL: Joi.string()
+      .min(5)
+      .max(255)
   };
 
   return Joi.validate(user, schema);
 }
 
-exports.User = User; 
+exports.User = User;
 exports.validate = validateUser;
