@@ -39,6 +39,8 @@ router.post("/", optionalAuth, async (req, res) => {
     title: req.body.title,
     soundcloudURL: req.body.soundcloudURL,
     imageURL: req.body.imageURL,
+    shortID: req.body.shortID,
+    kind: req.body.kind,
     creator: req.user._id,
     dateCreated,
     snippets
@@ -99,7 +101,7 @@ router.get("/user/:id", validateObjectId, async (req, res) => {
 
   // Find Tracks with matching owner Id
   const plugs = await Plug.find({
-    "creator": userId
+    creator: userId
   });
   // console.log(plugs, userId);
 

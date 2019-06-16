@@ -9,13 +9,15 @@ const Plug = mongoose.model(
       type: String,
       required: true,
       trim: true,
-      minlength: 5,
+      minlength: 1,
       maxlength: 255
     },
     soundcloudURL: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
+      minlength: 1,
+      maxlength: 255
     },
     imageURL: {
       type: String,
@@ -42,6 +44,11 @@ const Plug = mongoose.model(
     },
     dateUpdated: {
       type: Date
+    },
+    kind: {
+      type: String,
+      required: true,
+      enum: ["user", "playlist", "track"]
     }
   })
 );
@@ -49,15 +56,20 @@ const Plug = mongoose.model(
 function validatePlug(plug) {
   const schema = {
     title: Joi.string()
-      .min(5)
-      .max(50)
+      .min(1)
+      .max(255)
       .required(),
     soundcloudURL: Joi.string()
-      .min(5)
-      .max(50)
+      .min(1)
+      .max(255)
       .required(),
     imageURL: Joi.string().required(),
-    snippets: Joi.array()
+    snippets: Joi.array(),
+    shortID: Joi.string(),
+    kind: Joi.string()
+      .valid(["user", "playlist", "track"])
+      .required()
+
     // creator: Joi.objectId().required(),
   };
 
