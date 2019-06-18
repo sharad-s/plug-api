@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlength: 5,
+    minlength: 1,
     maxlength: 50
   },
   email: {
@@ -48,6 +48,17 @@ userSchema.methods.generateAuthToken = function() {
   );
   return token;
 };
+
+// Pre-save hook
+userSchema.pre("save", function(next) {
+  const regex = /large/gi;
+
+  // Upscale image URL
+  if (this.imageURL) {
+    this.imageURL = this.imageURL.replace(regex, "t500x500");
+  }
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

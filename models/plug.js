@@ -1,58 +1,74 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
+var random = require("mongoose-simple-random");
 // const { genreSchema } = require("./genre");
 
-const Plug = mongoose.model(
-  "Plugs",
-  new mongoose.Schema({
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 1,
-      maxlength: 255
-    },
-    soundcloudURL: {
-      type: String,
-      required: true,
-      trim: true,
-      minlength: 1,
-      maxlength: 255
-    },
-    imageURL: {
-      type: String,
-      required: true
-    },
-    creator: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
-    },
-    snippets: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Snippet"
-    },
-    playCount: {
-      type: Number,
-      default: 0
-    },
-    shortID: {
-      type: String,
-      default: ""
-    },
-    dateCreated: {
-      type: Date
-    },
-    dateUpdated: {
-      type: Date
-    },
-    kind: {
-      type: String,
-      required: true,
-      enum: ["user", "playlist", "track"]
-    }
-  })
-);
+const plugSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 255
+  },
+  soundcloudURL: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 255
+  },
+  imageURL: {
+    type: String,
+    required: true
+  },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+  snippets: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Snippet"
+  },
+  playCount: {
+    type: Number,
+    default: 0
+  },
+  shortID: {
+    type: String,
+    default: ""
+  },
+  dateCreated: {
+    type: Date
+  },
+  dateUpdated: {
+    type: Date
+  },
+  kind: {
+    type: String,
+    required: true,
+    enum: ["user", "playlist", "track"]
+  }
+});
 
+// Plugins
+plugSchema.plugin(random);
+
+// Pre-save hook
+plugSchema.pre("save", function(next) {
+  const regex = /large/gi;
+
+  // Change image URL
+  if (this.imageURL) {
+    this.imageURL = this.imageURL.replace(regex, "t500x500");
+  }
+  next();
+});
+
+// Model
+const Plug = mongoose.model("Plugs", plugSchema);
+
+// Validator
 function validatePlug(plug) {
   const schema = {
     title: Joi.string()

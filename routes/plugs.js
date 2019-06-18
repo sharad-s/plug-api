@@ -16,11 +16,25 @@ const validateSoundcloudURL = require("../middleware/validateSoundcloudURL");
 const { resolveURL } = require("../utils/soundcloud");
 const isEmpty = require("../utils/isEmpty");
 
+// @route   GET /api/plugs/test
+// @desc    TEST
+// @access  Public
+router.get("/test", async (req, res) => {
+  console.log("Random");
+  res.send("TEST");
+});
+
+// @route   GET /api/plugs/
+// @desc    Gets all plugs created
+// @access  Public
 router.get("/", async (req, res) => {
-  const plugs = await Plug.find().sort("dateCreated");
+  const plugs = await Plug.find().sort("dateCreated").populate("creator");
   res.send(plugs);
 });
 
+// @route   POST /api/plugs/
+// @desc    Creates a New Plug. Ties it to a creator if user is authenticated. Creator is empty if not.
+// @access  Public & Private
 router.post("/", optionalAuth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -51,51 +65,9 @@ router.post("/", optionalAuth, async (req, res) => {
   res.send(plug);
 });
 
-// router.put("/:id", async (req, res) => {
-//   const { error } = validate(req.body);
-//   if (error) return res.status(400).send(error.details[0].message);
-
-//   const genre = await Genre.findById(req.body.genreId);
-//   if (!genre) return res.status(400).send("Invalid genre.");
-
-//   const movie = await Movie.findByIdAndUpdate(
-//     req.params.id,
-//     {
-//       title: req.body.title,
-//       genre: {
-//         _id: genre._id,
-//         name: genre.name
-//       },
-//       numberInStock: req.body.numberInStock,
-//       dailyRentalRate: req.body.dailyRentalRate
-//     },
-//     { new: true }
-//   );
-
-//   if (!movie)
-//     return res.status(404).send("The movie with the given ID was not found.");
-
-//   res.send(movie);
-// });
-
-// router.delete("/:id", async (req, res) => {
-//   const movie = await Movie.findByIdAndRemove(req.params.id);
-
-//   if (!movie)
-//     return res.status(404).send("The movie with the given ID was not found.");
-
-//   res.send(movie);
-// });
-
-// router.get("/:id", async (req, res) => {
-//   const movie = await Movie.findById(req.params.id);
-
-//   if (!movie)
-//     return res.status(404).send("The movie with the given ID was not found.");
-
-//   res.send(movie);
-// });
-
+// @route   GET /api/plugs/user/:id
+// @desc    Gets all plugs created by user with id :id
+// @access  Public
 router.get("/user/:id", validateObjectId, async (req, res) => {
   const userId = req.params.id;
 
@@ -103,7 +75,6 @@ router.get("/user/:id", validateObjectId, async (req, res) => {
   const plugs = await Plug.find({
     creator: userId
   });
-  // console.log(plugs, userId);
 
   // If tracks are empty, return 404
   if (isEmpty(plugs)) {
@@ -113,6 +84,74 @@ router.get("/user/:id", validateObjectId, async (req, res) => {
   }
 
   res.send(plugs);
+});
+
+
+// @route   GET /api/plugs/random
+// @desc    Get random plugs, with number being ?amount
+// @access  Public
+router.get("/random", async (req, res) => {
+  console.log("Random");
+  let amount = req.query.amount;
+
+  // Find Random Tracks Promise wrapper
+  // TODO: Move logic to Plug model.
+  const findRandom = (limit = 1) =>
+    new Promise((resolve, reject) => {
+      Plug.findRandom({}, {}, { limit }, function(err, result) {
+        return err ? reject(err) : resolve(result);
+      });
+    });
+
+  const plugs = await findRandom(amount);
+
+  // If tracks are empty, return 404
+  if (isEmpty(plugs)) {
+    return res.status(404).json({ plugs: "Could not return random plugs." });
+  }
+
+  res.send(plugs);
+});
+
+
+// @route   GET /api/plugs/:shortID
+// @desc    Get a plug with a specific shortID
+// @access  Public
+router.get("/shortID/:shortID", async (req, res) => {
+  const shortID = req.params.shortID;
+
+  // Find Tracks with matching owner Id
+  const plug = await Plug.find({
+    shortID
+  });
+
+  // If tracks are empty, return 404
+  if (isEmpty(plug)) {
+    return res
+      .status(404)
+      .json({ plugs: "No plugs were found for the given shortID." });
+  }
+
+  res.send(plug);
+});
+
+// @route   GET /api/plugs/:id
+// @desc    Get a plug with a specific objectID
+// @access  Public
+router.get("/:id", validateObjectId, async (req, res) => {
+  const objectID = req.params.id;
+
+  // Find Tracks with matching owner Id
+  const plug = await Plug.findById(objectID);
+
+  // If tracks are empty, return 404
+  if (isEmpty(plug)) {
+    return res
+      .status(404)
+      .json({ plugs: "No plugs were found for the given ObjectID." });
+  }
+
+  res.send(plug);
 });
 
 module.exports = router;
