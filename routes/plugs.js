@@ -30,7 +30,7 @@ router.get("/test", async (req, res) => {
 // @access  Public
 router.get("/", async (req, res) => {
   const plugs = await Plug.find()
-    .sort("dateCreated")
+    .sort({dateCreated:-1})
     .populate("creator")
     // .populate("snippets");
   res.send(plugs);
@@ -48,7 +48,7 @@ router.post("/", optionalAuth, async (req, res) => {
   let foundPlug = await Plug.findOne({ shortID: req.body.shortID });
   if (foundPlug) return res.status(400).send("Plug already exists.");
 
-  // Create Snippet object for Plug
+  // Create Snippet objects for DB/Plug
   let snippetIDs;
   try {
     // Returns array of Mongo IDs for each Snippet in the Plug
@@ -73,11 +73,7 @@ router.post("/", optionalAuth, async (req, res) => {
     return res.status(400).send(err.details[0].message);
   }
 
-  // should update dateCreated
-  const dateCreated = Date.now();
-
-  console.log(req.user._id);
-
+  // Create Plug Object for DB
   const plug = new Plug({
     title: req.body.title,
     soundcloudURL: req.body.soundcloudURL,
@@ -85,12 +81,11 @@ router.post("/", optionalAuth, async (req, res) => {
     shortID: req.body.shortID,
     kind: req.body.kind,
     creator: req.user._id,
-    dateCreated,
+    dateCreated: Date.now(),
     snippets: snippetIDs
   });
 
   await plug.save();
-
   res.send(plug);
 });
 
