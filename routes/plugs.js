@@ -1,5 +1,6 @@
 const { Plug, validate } = require("../models/plug");
 const { User } = require("../models/user");
+const { Snippet, validateSnippet } = require("../models/snippet");
 
 // const {Snippet} = require('../models/snippet');
 
@@ -28,7 +29,10 @@ router.get("/test", async (req, res) => {
 // @desc    Gets all plugs created
 // @access  Public
 router.get("/", async (req, res) => {
-  const plugs = await Plug.find().sort("dateCreated").populate("creator");
+  const plugs = await Plug.find()
+    .sort("dateCreated")
+    .populate("creator")
+    // .populate("snippets");
   res.send(plugs);
 });
 
@@ -36,18 +40,43 @@ router.get("/", async (req, res) => {
 // @desc    Creates a New Plug. Ties it to a creator if user is authenticated. Creator is empty if not.
 // @access  Public & Private
 router.post("/", optionalAuth, async (req, res) => {
+  // Validate Input
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  // Should create snippets array
-  const snippets = [
-    mongoose.Types.ObjectId(),
-    mongoose.Types.ObjectId(),
-    mongoose.Types.ObjectId()
-  ];
+  // Check if Plug already Exists - if true, return err
+  let foundPlug = await Plug.findOne({ shortID: req.body.shortID });
+  if (foundPlug) return res.status(400).send("Plug already exists.");
+
+  // Create Snippet object for Plug
+  let snippetIDs;
+  try {
+    // Returns array of Mongo IDs for each Snippet in the Plug
+    snippetIDs = await Promise.all(
+      req.body.snippets.map(async snippet => {
+        // Check if Snippet already exists - if false, create it in DB
+        let foundSnippet = await Snippet.findOne({
+          soundcloudID: snippet.soundcloudID
+        });
+        if (isEmpty(foundSnippet)) {
+          foundSnippet = await new Snippet({
+            ...snippet,
+            creator: req.user._id
+          }).save();
+        }
+
+        // Return snippet Mongo ID
+        return mongoose.Types.ObjectId(foundSnippet._id);
+      })
+    );
+  } catch (err) {
+    return res.status(400).send(err.details[0].message);
+  }
 
   // should update dateCreated
   const dateCreated = Date.now();
+
+  console.log(req.user._id);
 
   const plug = new Plug({
     title: req.body.title,
@@ -57,7 +86,7 @@ router.post("/", optionalAuth, async (req, res) => {
     kind: req.body.kind,
     creator: req.user._id,
     dateCreated,
-    snippets
+    snippets: snippetIDs
   });
 
   await plug.save();
@@ -74,7 +103,9 @@ router.get("/user/:id", validateObjectId, async (req, res) => {
   // Find Tracks with matching owner Id
   const plugs = await Plug.find({
     creator: userId
-  });
+  })
+    .populate("creator")
+    .populate("snippets");
 
   // If tracks are empty, return 404
   if (isEmpty(plugs)) {
@@ -85,7 +116,6 @@ router.get("/user/:id", validateObjectId, async (req, res) => {
 
   res.send(plugs);
 });
-
 
 // @route   GET /api/plugs/random
 // @desc    Get random plugs, with number being ?amount
@@ -103,7 +133,9 @@ router.get("/random", async (req, res) => {
       });
     });
 
-  const plugs = await findRandom(amount);
+  const plugs = await findRandom(amount)
+    .populate("creator")
+    .populate("snippets");
 
   // If tracks are empty, return 404
   if (isEmpty(plugs)) {
@@ -113,7 +145,6 @@ router.get("/random", async (req, res) => {
   res.send(plugs);
 });
 
-
 // @route   GET /api/plugs/:shortID
 // @desc    Get a plug with a specific shortID
 // @access  Public
@@ -121,9 +152,13 @@ router.get("/shortID/:shortID", async (req, res) => {
   const shortID = req.params.shortID;
 
   // Find Tracks with matching owner Id
-  const plug = await Plug.find({
+  const plug = await Plug.findOne({
     shortID
-  });
+  })
+    .populate("creator")
+    .populate("snippets");
+
+  // await plug.populate()
 
   // If tracks are empty, return 404
   if (isEmpty(plug)) {
@@ -142,7 +177,9 @@ router.get("/:id", validateObjectId, async (req, res) => {
   const objectID = req.params.id;
 
   // Find Tracks with matching owner Id
-  const plug = await Plug.findById(objectID);
+  const plug = await Plug.findById(objectID)
+    .populate("creator")
+    .populate("snippets");
 
   // If tracks are empty, return 404
   if (isEmpty(plug)) {

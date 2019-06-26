@@ -26,10 +26,12 @@ const plugSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
-  snippets: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Snippet"
-  },
+  snippets: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Snippet"
+    }
+  ],
   playCount: {
     type: Number,
     default: 0
@@ -80,7 +82,9 @@ function validatePlug(plug) {
       .max(255)
       .required(),
     imageURL: Joi.string().required(),
-    snippets: Joi.array(),
+    snippets: Joi.array()
+      .items(Joi.object(snippetJoiSchema))
+      .required(),
     shortID: Joi.string(),
     kind: Joi.string()
       .valid(["user", "playlist", "track"])
@@ -91,6 +95,27 @@ function validatePlug(plug) {
 
   return Joi.validate(plug, schema);
 }
+
+const snippetJoiSchema = {
+  soundcloudID: Joi.string().required(),
+  title: Joi.string()
+    .min(1)
+    .max(255)
+    .required(),
+  artist: Joi.string()
+    .min(1)
+    .max(255)
+    .required(),
+  soundcloudPermalinkURL: Joi.string()
+    .min(1)
+    .max(255)
+    .required(),
+  imageURL: Joi.string()
+    .min(1)
+    .max(255)
+    .required()
+  // createdBy: Joi.objectId()
+};
 
 exports.Plug = Plug;
 exports.validate = validatePlug;
