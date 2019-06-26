@@ -30,9 +30,9 @@ router.get("/test", async (req, res) => {
 // @access  Public
 router.get("/", async (req, res) => {
   const plugs = await Plug.find()
-    .sort({dateCreated:-1})
-    .populate("creator")
-    // .populate("snippets");
+    .sort({ dateCreated: -1 })
+    .populate("creator");
+  // .populate("snippets");
   res.send(plugs);
 });
 
@@ -128,9 +128,16 @@ router.get("/random", async (req, res) => {
       });
     });
 
-  const plugs = await findRandom(amount)
-    .populate("creator")
-    .populate("snippets");
+  let plugs = await findRandom(amount);
+
+  // Populate plug from DB 
+  plugs = await Promise.all(
+    plugs.map(async plug => {
+      return await Plug.findById(plug._id)
+        .populate("creator")
+        .populate("snippets");
+    })
+  );
 
   // If tracks are empty, return 404
   if (isEmpty(plugs)) {
