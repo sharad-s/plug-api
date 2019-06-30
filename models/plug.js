@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 var random = require("mongoose-simple-random");
 // const { genreSchema } = require("./genre");
 
@@ -17,6 +18,11 @@ const plugSchema = new mongoose.Schema({
     trim: true,
     minlength: 1,
     maxlength: 255
+  },
+  soundcloudID: {
+    type: String, 
+    // required: true,
+    trim:true
   },
   imageURL: {
     type: String,
@@ -55,6 +61,7 @@ const plugSchema = new mongoose.Schema({
 
 // Plugins
 plugSchema.plugin(random);
+plugSchema.plugin(mongoosePaginate);
 
 // Pre-save hook
 plugSchema.pre("save", function(next) {
