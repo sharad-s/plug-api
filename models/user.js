@@ -2,6 +2,8 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const mongoose = require("mongoose");
+require('dotenv').config() 
+
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -44,7 +46,7 @@ userSchema.methods.generateAuthToken = function() {
       soundcloudURL: this.soundcloudURL,
       imageURL: this.imageURL
     },
-    config.get("jwtPrivateKey")
+    process.env.JWT_PRIVATE_KEY
   );
   return token;
 };

@@ -1,6 +1,4 @@
 const SoundCloud = require("soundcloud-api-client");
-const config = require("config");
-// const CLIENT_ID = config.get("SOUNDCLOUD_CLIENT_KEY");
 const CLIENT_ID ="47159083054685525f6b73d25e2560b9"
 
 const soundcloud = new SoundCloud({ CLIENT_ID });

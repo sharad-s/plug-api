@@ -30,7 +30,7 @@ module.exports = function(app) {
 
   // Passport auth middleware & config
   app.use(passport.initialize());
-  require("../config/passport")(passport);
+  require("../utils/passport")(passport);
 
   // Development Middleware
   if (app.get("env") === "development") {

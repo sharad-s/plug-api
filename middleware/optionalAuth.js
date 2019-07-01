@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
 const isEmpty = require('../utils/isEmpty')
+require('dotenv').config() 
 
 module.exports = function (req, res, next) {
   const token = req.header('x-auth-token');
@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
 
   try {
     // Get Decoded token and set req.user as decoded token. 
-    const decoded = jwt.verify(token, config.get('jwtPrivateKey'));
+    const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
     req.user = decoded; 
     next();
   }

@@ -1,6 +1,8 @@
 const SoundCloud = require('soundcloud-api-client');
-const config = require('config');
-const CLIENT_ID = config.get('SOUNDCLOUD_CLIENT_KEY');
+require('dotenv').config() 
+const CLIENT_ID = process.env.SOUNDCLOUD_CLIENT_KEY;
+
+
 
 const soundcloud = new SoundCloud({ CLIENT_ID });
 

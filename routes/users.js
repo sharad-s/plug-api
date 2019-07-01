@@ -1,6 +1,5 @@
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
-const config = require('config');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const _ = require('lodash');
