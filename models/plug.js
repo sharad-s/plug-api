@@ -64,18 +64,19 @@ const plugSchema = new mongoose.Schema({
 
 // Virtual Properties
 plugSchema.virtual("totalPlays").get(async function() {
-  const reducer = (accumulator, currentValue) => accumulator + currentValue;
+  // const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
-  // Get Play Counts of each snippet in Plug into an array
-  const playCounts = await Promise.all(
-    this.snippets.map(async snippetId => {
-      return (await Snippet.findById(snippetId)).playCount;
-    })
-  );
+  // // Get Play Counts of each snippet in Plug into an array
+  // const playCounts = await Promise.all(
+  //   this.snippets.map(async snippetId => {
+  //     return (await Snippet.findById(snippetId)).playCount;
+  //   })
+  // );
 
-  // reduce the array to find its sum
-  const totalPlays = playCounts.reduce(reducer, 0);
-  return totalPlays;
+  // // reduce the array to find its sum
+  // const totalPlays = playCounts.reduce(reducer, 0);
+  // return totalPlays;
+ return  Math.floor(Math.random() * 100);
 });
 
 // Plugins
