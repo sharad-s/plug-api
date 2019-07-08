@@ -1,8 +1,11 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
+const mongoosePaginate = require("mongoose-paginate-v2");
 var random = require("mongoose-simple-random");
 // const { genreSchema } = require("./genre");
+
+// Snippet Model
+const { Snippet } = require("./snippet");
 
 const plugSchema = new mongoose.Schema({
   title: {
@@ -20,9 +23,9 @@ const plugSchema = new mongoose.Schema({
     maxlength: 255
   },
   soundcloudID: {
-    type: String, 
+    type: String,
     // required: true,
-    trim:true
+    trim: true
   },
   imageURL: {
     type: String,
@@ -57,6 +60,22 @@ const plugSchema = new mongoose.Schema({
     required: true,
     enum: ["user", "playlist", "track"]
   }
+});
+
+// Virtual Properties
+plugSchema.virtual("totalPlays").get(async function() {
+  const reducer = (accumulator, currentValue) => accumulator + currentValue;
+
+  // Get Play Counts of each snippet in Plug into an array
+  const playCounts = await Promise.all(
+    this.snippets.map(async snippetId => {
+      return (await Snippet.findById(snippetId)).playCount;
+    })
+  );
+
+  // reduce the array to find its sum
+  const totalPlays = playCounts.reduce(reducer, 0);
+  return totalPlays;
 });
 
 // Plugins

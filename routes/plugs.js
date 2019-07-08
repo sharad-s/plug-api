@@ -39,15 +39,23 @@ router.get("/", async (req, res) => {
   const options = {
     sort: { dateCreated: -1 },
     populate: "creator",
-    lean: true,
+    lean: false,
     page: page || 1,
     limit: 9
   };
 
   const newPlugs = await Plug.paginate({}, options);
-  console.log(newPlugs.docs.length);
 
-  res.send(newPlugs.docs);
+  const returnedPlugs = await Promise.all(
+    newPlugs.docs.map(async plug => {
+      plug.playCount = await plug.totalPlays;
+      return plug;
+    })
+  );
+
+  // console.log(returnedPlugs);
+
+  res.send(returnedPlugs);
 });
 
 // @route   POST /api/plugs/
@@ -63,8 +71,9 @@ router.post("/", optionalAuth, async (req, res) => {
   if (foundPlug) return res.status(400).send("Plug already exists.");
 
   // Check if Plug actually has snippets. If it has zero snippets, return error.
-   // Check if Plug already Exists - if true, return err
-   if (isEmpty(req.body.snippets)) return res.status(400).send("This plug has no songs.");
+  // Check if Plug already Exists - if true, return err
+  if (isEmpty(req.body.snippets))
+    return res.status(400).send("This plug has no songs.");
 
   // Create Snippet objects for DB/Plug
   let snippetIDs;
