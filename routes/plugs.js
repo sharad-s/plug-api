@@ -68,7 +68,7 @@ router.post("/", optionalAuth, async (req, res) => {
 
   // Check if Plug already Exists - if true, return err
   let foundPlug = await Plug.findOne({ shortID: req.body.shortID });
-  if (foundPlug) return res.status(400).send("Plug already exists.");
+  if (foundPlug) return res.status(200).send(foundPlug);
 
   // Check if Plug actually has snippets. If it has zero snippets, return error.
   // Check if Plug already Exists - if true, return err
