@@ -1,6 +1,8 @@
 // Default middleware initialized at startup
 
 const express = require("express");
+const cors = require('cors')
+
 const winston = require("winston");
 const passport = require("passport");
 const helmet = require("helmet");
@@ -24,6 +26,10 @@ module.exports = function(app) {
 
   // for SSL
 //   app.use(express.static(__dirname, { dotfiles: "allow" }));
+
+  // CORS
+  app.use(cors());
+
 
   // HTTP Protection
   app.use(helmet());
